@@ -3,21 +3,19 @@ import { define } from "core/systems/GameObject";
 import { sketchTexture } from "core/utils/graphics";
 import { xy } from "core/utils/math";
 
-export const WhiteRect = define(
-  () =>
+export const WhiteRect = define({
+  display: () =>
     new Sprite(
       sketchTexture(xy(10, 10), (ctx) => {
         ctx.fillStyle = "white";
         ctx.fillRect(0, 0, 10, 10);
       })
     ),
-  null,
-  [],
-  {
+  on: {
     setup({ self }) {
       const { content } = self.getDisplay();
       content.x = 0;
       content.y = 0;
     },
-  }
-);
+  },
+});

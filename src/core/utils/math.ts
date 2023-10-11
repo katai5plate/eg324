@@ -34,6 +34,12 @@ xy.pick = <T extends object>(
   keyY?: ExtractKeysOfType<T, number>
 ): Point =>
   xy(keyX ? (obj[keyX] as number) : 0, keyY ? (obj[keyY] as number) : 0);
+/** 反転 */
+xy.flip = (from: PointLike) => xy.mul(from, xy(-1, -1));
+/** 横方向に反転 */
+xy.flipX = (from: PointLike) => xy.mul(from, xy(-1, 1));
+/** 縦方向に反転 */
+xy.flipY = (from: PointLike) => xy.mul(from, xy(1, -1));
 
 /** `Rectangle` を作成 */
 export const xywh = (x: number, y: number, w: number, h: number) =>

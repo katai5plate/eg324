@@ -6,7 +6,7 @@ export const defineScene = (
 ) =>
   class extends Scene {
     constructor() {
-      super(Array.isArray(gameObject) ? prefab(gameObject) : gameObject);
+      super(Array.isArray(gameObject) ? prefab(() => gameObject) : gameObject);
     }
   };
 

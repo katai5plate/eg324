@@ -1,7 +1,7 @@
 import { prefab, regist } from "core/systems/GameObject";
 import { WhiteRect } from "../objects/WhiteRect";
 
-export const FlyingRects = prefab([
+export const FlyingRects = prefab(() => [
   regist(WhiteRect),
   regist(WhiteRect, {
     update({ self }) {

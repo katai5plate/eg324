@@ -6,46 +6,46 @@ import { GameManager } from "core/managers/GameManager";
 
 type OnFunction = (props: { game: GameManager; self: GameObject }) => void;
 type OnFunctions = { setup?: OnFunction; update?: OnFunction };
-type OnFunctionsSelector = OnFunctions | (() => OnFunctions);
 
-export const define = <D extends DisplayBase>(
-  display: (() => D | null) | null,
-  components?: (() => ComponentBase[]) | null,
-  children?: GameObject[] | null,
-  on?: OnFunctionsSelector
-) => {
-  const callback = typeof on === "function" ? on() : on;
+export const define = <D extends DisplayBase>({
+  display,
+  components,
+  children,
+  on,
+}: {
+  display?: () => D;
+  components?: () => ComponentBase[];
+  children?: () => GameObject[];
+  on?: OnFunctions;
+}) => {
   return class extends GameObject {
     constructor() {
-      super(display?.() ?? null, components?.() ?? [], children ?? []);
+      super(display?.() ?? null, components?.() ?? [], children?.() ?? []);
     }
     _setup() {
       super._setup();
-      callback?.setup?.({ game: GameManager.game, self: this });
+      on?.setup?.({ game: GameManager.game, self: this });
     }
     _update() {
       super._update();
       if (this._destroyed) return;
-      callback?.update?.({ game: GameManager.game, self: this });
+      on?.update?.({ game: GameManager.game, self: this });
     }
   };
 };
 export const regist = <S extends GameObject>(
   gameObjectClass: { new (): S } | null,
-  on?: OnFunctionsSelector
+  on?: OnFunctions
 ) => {
-  const callback = typeof on === "function" ? on() : on;
   const gameObject = (
     gameObjectClass ? new gameObjectClass() : new GameObject(null, [], [])
   ) as S;
-  callback?.setup && gameObject.setInstantSetup(callback.setup);
-  callback?.update && gameObject.setInstantUpdate(callback.update);
+  on?.setup && gameObject.setInstantSetup(on.setup);
+  on?.update && gameObject.setInstantUpdate(on.update);
   return gameObject;
 };
-export const prefab = (
-  children: GameObject[],
-  on?: { setup?: OnFunction; update?: OnFunction }
-) => define(null, null, children, on);
+export const prefab = (children: () => GameObject[], on?: OnFunctions) =>
+  define({ children, on });
 
 export class GameObject {
   _display: DisplayBase;

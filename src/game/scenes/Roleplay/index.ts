@@ -5,7 +5,7 @@ import { FlyingRects } from "./prefabs/FlyingRects";
 
 export const Roleplay = defineScene(
   prefab(
-    [
+    () => [
       regist(Road),
       regist(FlyingRects, {
         update({ self }) {
