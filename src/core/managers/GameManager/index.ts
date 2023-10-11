@@ -1,8 +1,9 @@
 import { InputManager } from "core/managers/InputManager";
-import { xy } from "core/utils/math";
+import { xy, xywh } from "core/utils/math";
 import { PixiApp } from "./pixi";
 import { Scene } from "core/systems/Scene";
 import { Gizmo } from "./gizmo";
+import { GameObject } from "core/systems/GameObject";
 
 export class GameManager {
   static game: GameManager;
@@ -117,5 +118,18 @@ export class GameManager {
   }
   get fps() {
     return this.pixiApp.ticker.FPS;
+  }
+  get rect() {
+    return xywh(0, 0, this.width, this.height);
+  }
+  findGameObject<T extends GameObject>(target: { new (...args: any[]): T }): T {
+    if (this instanceof target) {
+      return this as T;
+    }
+    for (const child of this.currentScene?.gameObject._children ?? []) {
+      const found = child.findGameObject(target);
+      if (found) return found;
+    }
+    throw new Error("ゲームオブジェクトが見つかりません: " + target?.name);
   }
 }

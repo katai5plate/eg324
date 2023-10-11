@@ -11,7 +11,7 @@ export const WhiteRect = define(
         ctx.fillRect(0, 0, 10, 10);
       })
     ),
-  [],
+  null,
   [],
   {
     setup({ self }) {

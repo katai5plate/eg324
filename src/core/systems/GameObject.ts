@@ -10,14 +10,14 @@ type OnFunctionsSelector = OnFunctions | (() => OnFunctions);
 
 export const define = <D extends DisplayBase>(
   display: (() => D | null) | null,
-  components?: ComponentBase[] | null,
+  components?: (() => ComponentBase[]) | null,
   children?: GameObject[] | null,
   on?: OnFunctionsSelector
 ) => {
   const callback = typeof on === "function" ? on() : on;
   return class extends GameObject {
     constructor() {
-      super(display?.() ?? null, components ?? [], children ?? []);
+      super(display?.() ?? null, components?.() ?? [], children ?? []);
     }
     _setup() {
       super._setup();
@@ -44,12 +44,12 @@ export const regist = <S extends GameObject>(
 export const prefab = (
   children: GameObject[],
   on?: { setup?: OnFunction; update?: OnFunction }
-) => define(null, [], children, on);
+) => define(null, null, children, on);
 
 export class GameObject {
   _display: DisplayBase;
   _components: Set<ComponentBase>;
-  protected children: Set<GameObject>;
+  _children: Set<GameObject>;
   protected onInstantSetup?: OnFunction;
   protected onInstantUpdate?: OnFunction;
   constructor(
@@ -59,10 +59,10 @@ export class GameObject {
   ) {
     this._components = new Set(components);
     this._display = display ?? new Empty();
-    this.children = new Set(children ?? []);
+    this._children = new Set(children ?? []);
   }
   each(fn: (self: GameObject) => void) {
-    for (const child of this.children) {
+    for (const child of this._children) {
       fn(child);
     }
   }
@@ -73,7 +73,7 @@ export class GameObject {
     if (this._display.content) {
       scene.pixiStage.addChild(this._display.content);
     }
-    for (const child of this.children) {
+    for (const child of this._children) {
       child._pixiSetup(scene);
     }
   }
@@ -83,7 +83,7 @@ export class GameObject {
   _setup() {
     this.onInstantSetup?.({ game: GameManager.game, self: this });
 
-    for (const child of this.children) {
+    for (const child of this._children) {
       child._setup();
     }
   }
@@ -92,7 +92,7 @@ export class GameObject {
   }
   _update() {
     this.onInstantUpdate?.({ game: GameManager.game, self: this });
-    for (const child of this.children) {
+    for (const child of this._children) {
       child._update();
     }
   }
@@ -116,5 +116,15 @@ export class GameObject {
       if (component instanceof target) return component;
     }
     throw new Error("コンポーネントが見つかりません: " + target?.name);
+  }
+  findGameObject<T extends GameObject>(target: { new (...args: any[]): T }): T {
+    if (this instanceof target) {
+      return this as T;
+    }
+    for (const child of this._children) {
+      const found = child.findGameObject(target);
+      if (found) return found;
+    }
+    throw new Error("ゲームオブジェクトが見つかりません: " + target?.name);
   }
 }
