@@ -1,0 +1,20 @@
+body {
+  margin: 0;
+  padding: 0;
+
+  background-color: gray;
+}
+
+canvas {
+  position: absolute;
+  margin: auto;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+
+  width: auto !important;
+  height: 100% !important;
+
+  image-rendering: pixelated;
+}
