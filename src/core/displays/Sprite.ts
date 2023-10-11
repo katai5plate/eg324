@@ -1,4 +1,4 @@
-import { Sprite as PSprite, Resource, Texture } from "PIXI";
+import { Sprite as PSprite, Resource, Texture } from "pixi.js";
 import { DisplayBase } from "core/systems/DisplayBase";
 
 export class Sprite extends DisplayBase {

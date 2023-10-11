@@ -1,4 +1,4 @@
-import { Container, Point } from "PIXI";
+import { Container, Point } from "pixi.js";
 import { xy } from "core/utils/math";
 import { KeyboardDevice, KeyCodeNames } from "./keyboard";
 import {

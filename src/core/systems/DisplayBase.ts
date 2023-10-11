@@ -1,4 +1,4 @@
-import { Container } from "PIXI";
+import { Container } from "pixi.js";
 import { ComponentBase } from "./ComponentBase";
 
 export class DisplayBase extends ComponentBase {

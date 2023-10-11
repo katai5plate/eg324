@@ -1,4 +1,4 @@
-import { SCALE_MODES, Texture } from "PIXI";
+import { SCALE_MODES, Texture } from "pixi.js";
 import { PointLike } from "core/utils/math";
 
 export const sketchTexture = (

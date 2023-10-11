@@ -2,7 +2,6 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "PIXI": ["./src/core/libs/pixi.ts"],
       "game/*": ["./src/game/*"],
       "core/*": ["./src/core/*"],
       "src/*": ["./src/*"],

@@ -6,7 +6,7 @@ import {
   SCALE_MODES,
   Shader,
   Texture,
-} from "PIXI";
+} from "pixi.js";
 import { DisplayBase } from "core/systems/DisplayBase";
 import { PointLike, xy } from "core/utils/math";
 

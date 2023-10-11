@@ -1,4 +1,4 @@
-import { Application, BaseTexture, SCALE_MODES } from "PIXI";
+import { Application, BaseTexture, SCALE_MODES } from "pixi.js";
 
 export class PixiApp extends Application {
   constructor() {

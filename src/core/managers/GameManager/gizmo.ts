@@ -1,4 +1,4 @@
-import { Rectangle } from "PIXI";
+import { Rectangle } from "pixi.js";
 import { PointLike } from "core/utils/math";
 
 const DEBUG_FINENESS = 2;
