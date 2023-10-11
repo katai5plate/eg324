@@ -3,4 +3,4 @@ import { Roleplay } from "./scenes/Roleplay";
 import { Breakout } from "./scenes/Breakout";
 
 const game = new GameManager();
-game.setupScene({ Roleplay, Breakout }, "Roleplay");
+game.setupScene({ Roleplay, Breakout }, "Breakout");
