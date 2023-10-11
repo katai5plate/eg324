@@ -13,6 +13,7 @@ const Paddle = define(
       })
     ),
   [],
+  [],
   () => {
     const speed = 2;
     return {

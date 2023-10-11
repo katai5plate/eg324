@@ -12,6 +12,7 @@ export const WhiteRect = define(
       })
     ),
   [],
+  [],
   {
     setup({ self }) {
       const { content } = self.getDisplay();

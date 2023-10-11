@@ -9,14 +9,15 @@ type OnFunctions = { setup?: OnFunction; update?: OnFunction };
 type OnFunctionsSelector = OnFunctions | (() => OnFunctions);
 
 export const define = <D extends DisplayBase>(
-  displayComponent: (() => D | null) | null,
-  children?: GameObject[],
+  display: (() => D | null) | null,
+  components?: ComponentBase[] | null,
+  children?: GameObject[] | null,
   on?: OnFunctionsSelector
 ) => {
   const callback = typeof on === "function" ? on() : on;
   return class extends GameObject {
     constructor() {
-      super(displayComponent?.() ?? null, children);
+      super(display?.() ?? null, components ?? [], children ?? []);
     }
     _setup() {
       super._setup();
@@ -34,7 +35,7 @@ export const regist = <S extends GameObject>(
 ) => {
   const callback = typeof on === "function" ? on() : on;
   const gameObject = (
-    gameObjectClass ? new gameObjectClass() : new GameObject(null)
+    gameObjectClass ? new gameObjectClass() : new GameObject(null, [], [])
   ) as S;
   callback?.setup && gameObject.setInstantSetup(callback.setup);
   callback?.update && gameObject.setInstantUpdate(callback.update);
@@ -43,17 +44,21 @@ export const regist = <S extends GameObject>(
 export const prefab = (
   children: GameObject[],
   on?: { setup?: OnFunction; update?: OnFunction }
-) => define(null, children, on);
+) => define(null, [], children, on);
 
 export class GameObject {
-  _displayComponent: DisplayBase;
+  _display: DisplayBase;
   _components: Set<ComponentBase>;
   protected children: Set<GameObject>;
   protected onInstantSetup?: OnFunction;
   protected onInstantUpdate?: OnFunction;
-  constructor(displayComponent: DisplayBase | null, children?: GameObject[]) {
-    this._components = new Set();
-    this._displayComponent = displayComponent ?? new Empty();
+  constructor(
+    display: DisplayBase | null,
+    components: ComponentBase[],
+    children: GameObject[]
+  ) {
+    this._components = new Set(components);
+    this._display = display ?? new Empty();
     this.children = new Set(children ?? []);
   }
   each(fn: (self: GameObject) => void) {
@@ -65,8 +70,8 @@ export class GameObject {
     scene.pixiStage.removeChildren();
   }
   _pixiSetup(scene: Scene) {
-    if (this._displayComponent.content) {
-      scene.pixiStage.addChild(this._displayComponent.content);
+    if (this._display.content) {
+      scene.pixiStage.addChild(this._display.content);
     }
     for (const child of this.children) {
       child._pixiSetup(scene);
@@ -97,14 +102,14 @@ export class GameObject {
     new (...args: unknown[]): C;
   }): C | DisplayBase {
     if (target) {
-      if (this._displayComponent instanceof target) {
-        return this._displayComponent;
+      if (this._display instanceof target) {
+        return this._display;
       }
       throw new Error(
-        `ディスプレイコンポーネントの型が合いません: ${this._displayComponent.name}, ${target?.name}`
+        `ディスプレイコンポーネントの型が合いません: ${this._display.name}, ${target?.name}`
       );
     }
-    return this._displayComponent;
+    return this._display;
   }
   getComponent<C extends ComponentBase>(target: { new (...args: any): C }) {
     for (const component of this._components) {
