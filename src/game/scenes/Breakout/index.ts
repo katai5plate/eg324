@@ -53,6 +53,8 @@ const Paddle = define(
   }
 );
 
+const delta = xy(1, 1);
+
 const Ball = define(
   () =>
     new Sprite(
@@ -65,7 +67,6 @@ const Ball = define(
   [],
   () => {
     const speed = 2;
-    const delta = xy(1, 1);
     return {
       update({ game, self }) {
         const { content } = self.getDisplay();
@@ -87,12 +88,66 @@ const Ball = define(
   }
 );
 
-export const Breakout = defineScene(
-  prefab([regist(Paddle), regist(Ball)], {
-    update({ game }) {
-      if (game.input.isKeyTriggered("r")) {
-        game.changeScene("Roleplay");
+const Brick = define(
+  () =>
+    new Sprite(
+      sketchTexture(xy(48, 16), (ctx) => {
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, 48, 16);
+      })
+    ),
+  () => [new ColliderBox(xy(48, 16))],
+  [],
+  {
+    update({ game, self }) {
+      const { content } = self.getDisplay();
+      const collider = self.getComponent(ColliderBox);
+      const ball = game.findGameObject(Ball).getComponent(ColliderBox);
+      collider.setPosition(content);
+      content.angle = Math.random();
+      const hit = collider.hitTest(ball);
+      if (hit) {
+        self.destroy();
+        delta.y *= -1;
       }
     },
-  })
+  }
+);
+
+export const Breakout = defineScene(
+  prefab(
+    [
+      regist(Paddle),
+      regist(Ball, {
+        setup({ self }) {
+          const { content } = self.getDisplay();
+          content.position.set(80, 144);
+        },
+      }),
+      ...[
+        xy(16, 48),
+        xy(72, 16),
+        xy(136, 16),
+        xy(200, 16),
+        xy(72, 80),
+        xy(136, 80),
+        xy(200, 80),
+        xy(256, 48),
+      ].map(({ x, y }) =>
+        regist(Brick, {
+          setup({ self }) {
+            const { content } = self.getDisplay();
+            content.position.set(x, y);
+          },
+        })
+      ),
+    ],
+    {
+      update({ game }) {
+        if (game.input.isKeyTriggered("r")) {
+          game.changeScene("Roleplay");
+        }
+      },
+    }
+  )
 );

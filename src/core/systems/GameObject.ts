@@ -25,6 +25,7 @@ export const define = <D extends DisplayBase>(
     }
     _update() {
       super._update();
+      if (this._destroyed) return;
       callback?.update?.({ game: GameManager.game, self: this });
     }
   };
@@ -52,6 +53,8 @@ export class GameObject {
   _children: Set<GameObject>;
   protected onInstantSetup?: OnFunction;
   protected onInstantUpdate?: OnFunction;
+  _scene?: Scene;
+  _destroyed?: true;
   constructor(
     display: DisplayBase | null,
     components: ComponentBase[],
@@ -66,10 +69,8 @@ export class GameObject {
       fn(child);
     }
   }
-  _pixiReset(scene: Scene) {
-    scene.pixiStage.removeChildren();
-  }
   _pixiSetup(scene: Scene) {
+    this._scene = scene;
     if (this._display.content) {
       scene.pixiStage.addChild(this._display.content);
     }
@@ -91,6 +92,7 @@ export class GameObject {
     this.onInstantUpdate = fn;
   }
   _update() {
+    if (this._destroyed) return;
     this.onInstantUpdate?.({ game: GameManager.game, self: this });
     for (const child of this._children) {
       child._update();
@@ -117,14 +119,27 @@ export class GameObject {
     }
     throw new Error("コンポーネントが見つかりません: " + target?.name);
   }
-  findGameObject<T extends GameObject>(target: { new (...args: any[]): T }): T {
+  _findGameObject<T extends GameObject>(target: {
+    new (...args: any[]): T;
+  }): T | null {
     if (this instanceof target) {
       return this as T;
     }
     for (const child of this._children) {
-      const found = child.findGameObject(target);
+      const found = child._findGameObject(target);
       if (found) return found;
     }
-    throw new Error("ゲームオブジェクトが見つかりません: " + target?.name);
+    return null;
+  }
+  destroy() {
+    this._destroyed = true;
+
+    this._children.clear();
+    this._components.clear();
+    this.onInstantSetup = undefined;
+    this.onInstantUpdate = undefined;
+
+    this._display.content.destroy();
+    this.each((child) => child.destroy());
   }
 }

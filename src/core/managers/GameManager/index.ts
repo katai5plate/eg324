@@ -123,13 +123,10 @@ export class GameManager {
     return xywh(0, 0, this.width, this.height);
   }
   findGameObject<T extends GameObject>(target: { new (...args: any[]): T }): T {
-    if (this instanceof target) {
-      return this as T;
-    }
     for (const child of this.currentScene?.gameObject._children ?? []) {
-      const found = child.findGameObject(target);
-      if (found) return found;
+      const found = child._findGameObject(target);
+      if (found) return found as T;
     }
-    throw new Error("ゲームオブジェクトが見つかりません: " + target?.name);
+    throw new Error("ゲームオブジェクトが見つかりません: " + target.name);
   }
 }

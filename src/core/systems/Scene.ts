@@ -19,7 +19,7 @@ export class Scene {
     this.pixiStage.sortableChildren = true;
   }
   setup() {
-    this.gameObject._pixiReset(this);
+    this.pixiStage.removeChildren();
     this.gameObject._pixiSetup(this);
     this.gameObject._setup();
   }
