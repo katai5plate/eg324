@@ -24,14 +24,14 @@ const Paddle = define({
     setup({ self }) {
       const { content } = self.getDisplay();
       const collider = self.getComponent(ColliderBox);
+      self.syncDisplayPosition([collider]);
+
       content.x = 136;
       content.y = 224;
-      collider.setPosition(content);
     },
     update({ game, self }) {
       const { content } = self.getDisplay();
       const collider = self.getComponent(ColliderBox);
-      collider.setPosition(content);
 
       const axis = xy.add(
         game.input.getAxis("ARROW"),
@@ -65,11 +65,14 @@ const Ball = define({
     ),
   components: () => [new ColliderBox(xy(8, 8))],
   on: {
+    setup({ self }) {
+      const collider = self.getComponent(ColliderBox);
+      self.syncDisplayPosition([collider]);
+    },
     update({ game, self }) {
       const { content } = self.getDisplay();
       const collider = self.getComponent(ColliderBox);
       const paddle = game.findGameObject(Paddle).getComponent(ColliderBox);
-      collider.setPosition(content);
 
       if (
         collider.rect.left < game.rect.left ||
@@ -107,11 +110,14 @@ const Brick = define({
     ),
   components: () => [new ColliderBox(xy(48, 16))],
   on: {
+    setup({ self }) {
+      const collider = self.getComponent(ColliderBox);
+      self.syncDisplayPosition([collider]);
+    },
     update({ game, self }) {
       const { content } = self.getDisplay();
       const collider = self.getComponent(ColliderBox);
       const ball = game.findGameObject(Ball).getComponent(ColliderBox);
-      collider.setPosition(content);
       content.angle = Math.random();
       if (collider.hitTest(ball)) {
         self.destroy();

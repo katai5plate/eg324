@@ -3,6 +3,8 @@ import { ComponentBase } from "./ComponentBase";
 import { DisplayBase } from "./DisplayBase";
 import { Scene } from "./Scene";
 import { GameManager } from "core/managers/GameManager";
+import { PointLike } from "core/utils/math";
+import { Transform } from "pixi.js";
 
 type OnFunction = (props: { game: GameManager; self: GameObject }) => void;
 type OnFunctions = { setup?: OnFunction; update?: OnFunction };
@@ -55,6 +57,7 @@ export class GameObject {
   protected onInstantUpdate?: OnFunction;
   _scene?: Scene;
   _destroyed?: true;
+  _listOnChangeDisplayTransform: Set<(position: PointLike) => void>;
   constructor(
     display: DisplayBase | null,
     components: ComponentBase[],
@@ -63,6 +66,31 @@ export class GameObject {
     this._components = new Set(components);
     this._display = display ?? new Empty();
     this._children = new Set(children ?? []);
+    this._listOnChangeDisplayTransform = new Set();
+
+    const { cb, scope }: { cb: (this: any) => any; scope: Transform } =
+      this._display.content.position;
+    this._display.content.position.cb = () => {
+      cb.apply(scope);
+      this._listOnChangeDisplayTransform.forEach((fn) => {
+        fn(scope.position);
+      });
+    };
+  }
+  /** Display の位置情報が指定のコンポーネントと同期されるようにする */
+  syncDisplayPosition(
+    components: {
+      [key: string]: any;
+      connectPosition: (position: PointLike) => void;
+    }[]
+  ) {
+    for (let component of components) {
+      const fn = (position: PointLike) => component.connectPosition(position);
+      if (this._listOnChangeDisplayTransform.has(fn))
+        throw new Error("すでに接続されています");
+      this._listOnChangeDisplayTransform.add(fn);
+      fn(this._display.content.transform.position);
+    }
   }
   each(fn: (self: GameObject) => void) {
     for (const child of this._children) {

@@ -35,6 +35,9 @@ class ColliderBase extends ComponentBase {
       this.body.pos.y = pos.y;
     }
   }
+  connectPosition(position: PointLike) {
+    this.setPosition(position);
+  }
 }
 
 const boolToRes = (a: unknown, b: unknown, result: boolean) => {
